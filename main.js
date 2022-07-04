@@ -1,3 +1,6 @@
+const score = document.getElementById("countScore");
+
+
 const FRAME_RATE = 40;
 //possono cambiare se resize della window
 let winWidth = window.innerWidth;
@@ -6,6 +9,7 @@ let winHeight = window.innerHeight;
 const SPAN_WIDTH = 200;
 const SPAN_HEIGHT = 200;
 
+const BG = "#191919";
 const PLAYER_COLOR = "#0000ff";
 const ENEMY_COLOR = "#ff0000";
 const BULLET_COLOR = "#ffffff";
@@ -17,11 +21,11 @@ const LEN_BASE = 80;
 const LEN_ALTEZZA = LEN_BASE*1.15;
 const PLAYER_VEL = 10;
 
-const ENEMY_RADIUS= 25;
-const ENEMY_SPAWNING_TIME = 1; //secondi per far spownare enemy
+const ENEMY_RADIUS = 25;
+let  enemy_spawning_time = 1; //secondi per far spownare enemy, varia all'aumentare del tempo
 const ENEMY_VEL = 5;
 
-const BULLET_RADIUS = 5;
+const BULLET_RADIUS = 3;
 const BULLET_VEL = 15;
 const BULLET_RELOAD = 0.2; //secondi dallo spawn di un bullet all'altro
 
@@ -76,7 +80,7 @@ function draw(){
 	checkParticlesDeath(particlesArr);
 
 	//draw
-	background("#191919");
+	background(BG);
 	noStroke();
 	drawEnemy(enemyArr);
 	drawBullet(bulletArr);
@@ -157,38 +161,32 @@ function spawnBullet(x, y, dirX, dirY, bulletArr){
 
 //copied from geeksforgeeks
 function circleCollide(x1, y1, x2, y2, r1, r2){
-		let distSq = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
-		let radSumSq = (r1 + r2) * (r1 + r2);
-		if (distSq <= radSumSq)
-			return 1;
-		else
-			return 0;
+	let distSq = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+	let radSumSq = (r1 + r2) * (r1 + r2);
+	if (distSq <= radSumSq)
+		return true;
+	else
+		return false;
 }
 
 function checkForEnemyHit(player, enemyArr){
 	enemyArr.forEach(enemy => {
-		let indexEnemy = 0;
 		if (circleCollide(player.centerX, player.centerY, enemy.x, enemy.y, LEN_BASE/2, ENEMY_RADIUS)){
-			enemyArr.splice(indexEnemy, 1);
+			enemyArr.splice(enemyArr.indexOf(enemy), 1);
 		}
-		indexEnemy++;
 	})
-
 }
 
 function checkForBulletHit(bulletArr, enemyArr, particlesArr){
-	let indexBull = 0
 	bulletArr.forEach(bullet => {
-		let indexEnemy = 0;
 		enemyArr.forEach(enemy => {
 			//se bullet colpiscono gli enemy
 			if (circleCollide(bullet.x , bullet.y , enemy.x, enemy.y, BULLET_RADIUS, ENEMY_RADIUS)){
-				enemyArr.splice(indexEnemy, 1);
+				enemyArr.splice(enemyArr.indexOf(enemy), 1);
 				makeParticles(enemy.x, enemy.y, particlesArr);
+				// score.innerHTML++;
 			}
-			indexEnemy++;
 		})
-		indexBull++;
 	})
 
 }
@@ -231,7 +229,7 @@ function addEnemy(enemyArr){
 
 function checkSpawnEnemy(enemyArr){
 	enemyCountTime++;
-	if (enemyCountTime == ENEMY_SPAWNING_TIME * FRAME_RATE) {
+	if (enemyCountTime == enemy_spawning_time * FRAME_RATE) {
 		enemyCountTime = 0;
 		addEnemy(enemyArr);
 	}
@@ -276,7 +274,8 @@ function moveParticles(particlesArr){
 
 
 function checkParticlesDeath(particlesArr){
-	let index = 0; particlesArr.forEach(particle => { 
+	let index = 0; 
+	particlesArr.forEach(particle => { 
 		particle.lifeDuration++;
 		if (particle.lifeDuration > particle.duration * FRAME_RATE){
 			particlesArr.splice(index, 1);
