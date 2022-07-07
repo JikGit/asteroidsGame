@@ -184,7 +184,7 @@ function checkForBulletHit(bulletArr, enemyArr, particlesArr){
 			if (circleCollide(bullet.x , bullet.y , enemy.x, enemy.y, BULLET_RADIUS, ENEMY_RADIUS)){
 				enemyArr.splice(enemyArr.indexOf(enemy), 1);
 				makeParticles(enemy.x, enemy.y, particlesArr);
-				// score.innerHTML++;
+				score.innerHTML++;
 			}
 		})
 	})
